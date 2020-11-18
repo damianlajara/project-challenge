@@ -6,3 +6,5 @@
 #     https: false
 #   )
 # end
+
+require 'will_paginate/array'

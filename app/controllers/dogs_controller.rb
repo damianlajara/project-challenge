@@ -1,10 +1,10 @@
 class DogsController < ApplicationController
-  before_action :set_dog, only: [:show, :edit, :update, :destroy]
+  before_action :set_dog, only: [:show, :edit, :update, :destroy, :like]
 
   # GET /dogs
   # GET /dogs.json
   def index
-    @dogs = Dog.all
+    @dogs = dogs_with_ads
   end
 
   # GET /dogs/1
@@ -65,7 +65,34 @@ class DogsController < ApplicationController
     end
   end
 
+  def like
+    # only a logged in user can like
+    # You can't like your own doggie
+    if user_signed_in? && @dog.try(:owner).try(:id) != current_user.id
+      if current_user.liked? @dog
+        @dog.unliked_by current_user
+      else
+        @dog.liked_by current_user
+      end
+    end
+  end
+
   private
+    def dogs_with_ads
+      # We dont have many dogs so I can get away with this for now
+      # But will prob need an order here with joins on the votes table to make a SQL statement
+      dogs = Dog.all.sort_by{ |dog| [dog.updated_at < 1.hours.ago ? 0 : 1, -dog.get_likes.size] }.each_with_index.reduce([]) do |memo, (dog, i)|
+        after_two = (i + 1) % 3
+        if after_two == 0
+          memo << "some sample ad here"
+        else
+          memo << dog
+        end
+      end
+
+      dogs.paginate(page: params[:page], per_page: 5)
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_dog
       @dog = Dog.find(params[:id])
