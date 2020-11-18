@@ -1,6 +1,25 @@
-<a href="<%= url_for(dog) %>">
-  <article>
-    <h2 class="dog-name"><%= dog.name %></h2>
-    <%= image_tag url_for(dog.images.first), class: "dog-photo", alt: "Photo of #{dog.name}" %>
+<% if dog.is_a?(Dog) %>
+  <article class="Dog">
+    <a href="<%= url_for(dog) %>">
+      <%= image_tag url_for(dog.images.first || "https://placedog.net/300/300?id=#{dog.id}"), class: "Dog__img", alt: "Photo of #{dog.name}" %>
+    </a>
+    <div>
+      <h2 class="Dog__name"><%= dog.name %></h2>
+      <p class="Dog__description"><%= dog.description %></p>
+      <p class="Dog__like">
+      <% if dog_can_be_liked_by_user? dog %>
+        <%= link_to like_dog_path(dog), method: :put do |d| %>
+          <%= image_tag image_url("heart"), class: "Dog__like__img" %>
+        <% end %>
+      <% else %>
+        <%= image_tag image_url("heart"), class: "Dog__like__img Dog__like__img--disabled" %>
+      <% end %>
+      <span><%= dog.get_upvotes.size %></span>
+      </p>
+    </div>
   </article>
-</a>
+<% else %>
+  <article class="Dog">
+    <%= image_tag image_url("ad"), class: "Dog__img" %>
+  </article>
+<% end %>

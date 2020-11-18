@@ -1,13 +1,21 @@
 <section>
   <h2><%= @dog.name %></h2>
 
-  <% @dog.images.each do |image| %>
-    <%= image_tag url_for(image), alt: "Photo of #{@dog.name}" %>
+  <% if @dog.images.empty? %>
+    <%= image_tag "https://placedog.net/300/300?id=#{@dog.id}", class: "Dog__img", alt: "Photo of #{@dog.name}" %>
+  <% else %>
+    <% @dog.images.each do |image| %>
+      <%= image_tag url_for(image), alt: "Photo of #{@dog.name}" %>
+    <% end %>
   <% end %>
+
 
   <p><%= @dog.description %></p>
 
-  <%= link_to "Edit #{@dog.name}'s Profile", edit_dog_path %>
-  <br>
-  <%= link_to "Delete #{@dog.name}'s Profile", dog_path, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <% if can? :modify, @dog %>
+    <%= link_to "Edit #{@dog.name}'s Profile", edit_dog_path(@dog) %>
+    <br>
+    <%= link_to "Delete #{@dog.name}'s Profile", dog_path, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <% end %>
+
 </section>
